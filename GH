@@ -65,6 +65,10 @@ local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
 local harvest = game:GetService("ReplicatedStorage").RemoteEvents.HarvestFruit
+local TeleportService = game:GetService("TeleportService")
+
+
+
 
 local secondssell = 70
 local ripestage = nil
@@ -122,6 +126,9 @@ EnableAntiAFK()
 --------------------------------------------------
 -- FARM TAB
 --------------------------------------------------
+local Section = fTab:Section({ 
+    Title = "Auto Farm",
+})
 local Dropdown = fTab:Dropdown({
     Title = "Harvest Stage",
     Desc = "Select ripeness stage",
@@ -148,11 +155,6 @@ local Dropdown = fTab:Dropdown({
         selectedfruits = options or {}
     end
 })
---------------------------------------------------
-
---------------------------------------------------
--- AUTO HARVEST
---------------------------------------------------
 
 local Toggle = fTab:Toggle({
     Title = "Auto Harvest",
@@ -210,6 +212,10 @@ local Toggle = fTab:Toggle({
     end
 })
 
+local Section = fTab:Section({ 
+    Title = "Fruit Values",
+})
+
 local Button = fTab:Button({
     Title = "Check value of the Inventory",
     Desc = "Checks all the fruit value",
@@ -265,8 +271,42 @@ local Button = fTab:Button({
         })
     end
 })
+
+local Button = fTab:Button({
+    Title = "Check value of held fruit",
+    Desc = "Checks the fruit that you are holding",
+    Locked = false,
+    Callback = function()
+        local char = player.Character
+        if not char then return end
+
+        local tool = char:FindFirstChildWhichIsA("Tool")
+
+        if tool and tool:GetAttribute("IsHarvested") == true then
+            local value = tool:GetAttribute("FruitValue") or 0
+
+            WindUI:Notify({
+                Title = "Held fruit value",
+                Content = tool.Name .. " : " .. value,
+                Duration = 5,
+                Icon = "bird",
+            })
+        else
+            WindUI:Notify({
+                Title = "Held fruit value",
+                Content = "You are not holding a harvested fruit.",
+                Duration = 5,
+                Icon = "bird",
+            })
+        end
+    end
+})
+
 local player = game.Players.LocalPlayer
 
+local Section = fTab:Section({ 
+    Title = "Plant",
+})
 local Tab = fTab:Toggle({
     Title = "Auto Plant to current position",
     Desc = "Automatically plants equipped seed",
@@ -299,10 +339,10 @@ local Tab = fTab:Toggle({
     end
 })
 
---------------------------------------------------
--- SELL SYSTEM
---------------------------------------------------
 
+local Section = fTab:Section({ 
+    Title = "Auto Sell",
+})
 local Slider = fTab:Slider({
     Title = "Seconds to Sell",
     Desc = "How many seconds to sell",
@@ -355,7 +395,9 @@ local Toggle = fTab:Toggle({
 --------------------------------------------------
 -- SHOP TAB
 --------------------------------------------------
-
+local Section = sTab:Section({ 
+    Title = "Auto buy seed",
+})
 local Dropdown = sTab:Dropdown({
     Title = "Select seeds to buy",
     Desc = "Auto buy selected seeds",
@@ -469,7 +511,9 @@ local function GetGearStock(gearName)
 
     return number or 0
 end
-
+local Section = sTab:Section({ 
+    Title = "Auto buy gears",
+})
 local Dropdown = sTab:Dropdown({
     Title = "Select gears to buy",
     Desc = "Auto buy selected gears",
@@ -540,14 +584,39 @@ local Toggle = sTab:Toggle({
 })
 
 
+local GuiService = game:GetService("GuiService")
+local TeleportService = game:GetService("TeleportService")
 
+local Toggle = setTab:Toggle({
+    Title = "Auto Reconnect",
+    Desc = "Reconnects when connection error appears",
+    Icon = "bird",
+    Type = "Checkbox",
+    Value = false,
 
+    Callback = function(state)
+        getgenv().AutoReconnect = state
 
+        if state then
+            GuiService.ErrorMessageChanged:Connect(function(msg)
+                if not getgenv().AutoReconnect then return end
+                if msg and msg ~= "" then
 
+                    task.wait(1)
 
+                    pcall(function()
+                        TeleportService:TeleportToPlaceInstance(
+                            game.PlaceId,
+                            game.JobId,
+                            game.Players.LocalPlayer
+                        )
+                    end)
 
-
-
+                end
+            end)
+        end
+    end
+})
 
 
 myConfig:Load()
