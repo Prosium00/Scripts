@@ -178,14 +178,14 @@ local Toggle = fTab:Toggle({
                             local ripeness = v:GetAttribute("RipenessStage")
                             local harvestable = v:GetAttribute("HarvestablePlant")
 
-                            if harvestable == true and IsStageAllowed(ripeness) and IsFruitAllowed(v.Name) then
+                            if harvestable == true and IsStageAllowed(ripeness) and IsFruitAllowed(v.Name) and not v:GetAttribute("Favorited") then
                                 harvest:FireServer({
                                     { Uuid = v:GetAttribute("Uuid") }
                                 })
                             else
                                 for _, p in ipairs(v:GetChildren()) do
                                     if p.Name:find("Fruit")
-                                    and IsStageAllowed(p:GetAttribute("RipenessStage")) and IsFruitAllowed(v.Name) then
+                                    and IsStageAllowed(p:GetAttribute("RipenessStage")) and IsFruitAllowed(v.Name) and not v:GetAttribute("Favorited") then
 
                                         local uuid = p:GetAttribute("Uuid")
 
