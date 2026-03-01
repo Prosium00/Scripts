@@ -89,6 +89,19 @@ local fruits = {"Carrot",'Corn','Onion', "Starberry", "Mushroom", 'Beetroot', 'T
 local seeds = {"Carrot Seed",'Corn Seed','Onion Seed', "Starberry Seed", "Mushroom Seed", 'Beetroot Seed', 'Tomato Seed','Apple Seed','Rose Seed','Wheat Seed', 'Banana Seed','Plum Seed','Potato Seed', 'Cabbage Seed', 'Cherry Seed'}
 local gears = {"Watering Can", 'Basic Sprinkler','Harvest Bell','Turbo Sprinkler','Favorite Tool', "Super Sprinkler"}
 
+local function IsStageAllowed(stage)
+    if not selectedStages or #selectedStages == 0 then
+        return true
+    end
+
+    for _, v in ipairs(selectedStages) do
+        if v == stage then
+            return true
+        end
+    end
+
+    return false
+end
 
 local function IsFruitAllowed(fruitName)
     if not selectedfruits or #selectedfruits == 0 then
@@ -178,14 +191,14 @@ local Toggle = fTab:Toggle({
                             local ripeness = v:GetAttribute("RipenessStage")
                             local harvestable = v:GetAttribute("HarvestablePlant")
 
-                            if harvestable == true and IsStageAllowed(ripeness) and IsFruitAllowed(v.Name) and not v:GetAttribute("Favorited") then
+                            if harvestable == true and IsStageAllowed(ripeness) and IsFruitAllowed(v.Name) then
                                 harvest:FireServer({
                                     { Uuid = v:GetAttribute("Uuid") }
                                 })
                             else
                                 for _, p in ipairs(v:GetChildren()) do
                                     if p.Name:find("Fruit")
-                                    and IsStageAllowed(p:GetAttribute("RipenessStage")) and IsFruitAllowed(v.Name) and not v:GetAttribute("Favorited") then
+                                    and IsStageAllowed(p:GetAttribute("RipenessStage")) and IsFruitAllowed(v.Name) then
 
                                         local uuid = p:GetAttribute("Uuid")
 
